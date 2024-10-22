@@ -85,8 +85,7 @@ m_int1 <- lm(Sepal.Width ~ Petal.Width * Petal.Length,
 df_set <- iris %>% 
   filter(Species == "setosa")
 
-ss_null <- with(df_set,
-                (Sepal.Width - mean(Sepal.Width)))^2 %>% 
+ss_null <- with(df_set, (Sepal.Width - mean(Sepal.Width)))^2 %>% 
   sum()
 
 ss <- resid(lm(Sepal.Width ~ Petal.Width, df_set))^2 %>% 
