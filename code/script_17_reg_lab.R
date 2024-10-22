@@ -24,6 +24,29 @@ m_vir <- lm(Sepal.Width ~ Petal.Width,
             data = iris %>% 
               filter(Species == "virginica"))
 
+## Avoid redundant codes
+sp <- unique(iris$Species) # get unique vector of species names
+n_sp <- n_distinct(iris$Species) # get the number of unique elements
+
+## - for loop option
+## -- you may want to create an empty list as a placeholder
+list_m <- NULL
+for (i in 1:n_sp) {
+  ## for (i in 1:n_sp) loops i from 1 to n_sp
+  list_m[[i]] <- lm(Sepal.Width ~ Petal.Width, 
+                    data = iris %>% 
+                      filter(Species == sp[i]))
+}
+
+## - lapply option
+## -- in this case, you won't need to reate a placeholder
+list_m <- lapply(1:n_sp, function(i) {
+  ## function(i) loops i from 1 to n_sp
+  lm(Sepal.Width ~ Petal.Width,
+     data = iris %>% 
+       filter(Species == sp[i]))
+})
+
 
 # 6.4.2 Multiple explanatory variables
 # Regression analysis can involve multiple explanatory variables.
@@ -46,39 +69,27 @@ m1_vir <- lm(Sepal.Width ~ Petal.Width + Petal.Length,
                filter(Species == "virginica"))
 
 ## interaction term example
-m_int <- lm(Sepal.Width ~ Petal.Width + Petal.Length + Petal.Width:Petal.Length,
-            data = iris)
+## one way to write a  interaction x1 + x2 + x1:x2 
+m_int0 <- lm(Sepal.Width ~ Petal.Width + Petal.Length + Petal.Width:Petal.Length,
+             data = iris %>% 
+               filter(Species == "virginica"))
+
+## another way to write a  interaction x1 * x2 
+## x1 * x2 is a short version of x1 + x2 + x1:x2
+m_int1 <- lm(Sepal.Width ~ Petal.Width * Petal.Length,
+             data = iris %>% 
+               filter(Species == "virginica"))
 
 # Extra: Calculate the coefficient of variation for models developed in 6.4.2
 # Perform the calculation manually, then confirm your calculation match the reported value in lm()
 df_set <- iris %>% 
   filter(Species == "setosa")
 
-ss_null <- sum(with(df_set, (Sepal.Width - mean(Sepal.Width)))^2)
+ss_null <- with(df_set,
+                (Sepal.Width - mean(Sepal.Width)))^2 %>% 
+  sum()
 
-ss <- sum(resid(lm(Sepal.Width ~ Petal.Width, df_set))^2)
+ss <- resid(lm(Sepal.Width ~ Petal.Width, df_set))^2 %>% 
+  sum()
 
-1 - ss / ss_null
-
-## Avoid redundant codes
-sp <- unique(iris$Species)
-n_sp <- n_distinct(iris$Species)
-
-## - for loop option
-## -- you may want to create an empty list as a placeholder
-list_m <- NULL
-for (i in 1:n_sp) {
-  ## for (i in 1:n_sp) loops i from 1 to n_sp
-  list_m[[i]] <- lm(Sepal.Width ~ Petal.Width, 
-                    data = iris %>% 
-                      filter(Species == sp[i]))
-}
-  
-## - lapply option
-## -- in this case, you won't need to reate a placeholder
-list_m <- lapply(1:n_sp, function(i) {
-  ## function(i) loops i from 1 to n_sp
-  lm(Sepal.Width ~ Petal.Width,
-     data = iris %>% 
-       filter(Species == sp[i]))
-})
+(r_sq <- 1 - (ss / ss_null))
