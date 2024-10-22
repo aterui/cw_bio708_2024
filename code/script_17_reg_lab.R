@@ -69,12 +69,12 @@ m1_vir <- lm(Sepal.Width ~ Petal.Width + Petal.Length,
                filter(Species == "virginica"))
 
 ## interaction term example
-## one way to write a  interaction x1 + x2 + x1:x2 
+## one way to write a model with interaction x1 + x2 + x1:x2 
 m_int0 <- lm(Sepal.Width ~ Petal.Width + Petal.Length + Petal.Width:Petal.Length,
              data = iris %>% 
                filter(Species == "virginica"))
 
-## another way to write a  interaction x1 * x2 
+## another way to write a model with interaction x1 * x2 
 ## x1 * x2 is a short version of x1 + x2 + x1:x2
 m_int1 <- lm(Sepal.Width ~ Petal.Width * Petal.Length,
              data = iris %>% 
