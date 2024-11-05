@@ -86,3 +86,87 @@ m_pois_ue <- glm(count ~ nitrate + offset(log(area)),
 summary(m_pois_ue)
 
 
+# proportional data -------------------------------------------------------
+
+## visualization of logit function
+# x: produce 100 numbers from -100 to 100 (assume logit scale)
+# y: convert with inverse-logit transformation (ordinary scale)
+df_test <- tibble(logit_x = seq(-10, 10, length = 100),
+                  x = exp(logit_x) / (1 + exp(logit_x)))
+
+df_test %>% 
+  ggplot(aes(x = logit_x,
+             y = x)) +
+  geom_point() +
+  geom_line() +
+  labs(y = "x",
+       x = "logit(x)")
+
+## mussel egg data
+df_mussel <- read_csv(here::here("data_raw/data_mussel.csv"))
+print(df_mussel)
+
+df_mussel <- df_mussel %>% 
+  mutate(p = n_fertilized / n_examined)
+
+## plot
+df_mussel %>% 
+  ggplot(aes(x = density,
+             y = p)) +
+  geom_point() +
+  labs(x = "Mussel density",
+       y = "Prop. of eggs fertilized")
+
+## glm with binomial error distribution
+m_binom <- glm(cbind(n_fertilized, n_examined - n_fertilized) ~ density,
+               data = df_mussel,
+               family = "binomial")
+
+# # make prediction
+# df_pred <- tibble(density = seq(min(df_mussel$density),
+#                                 max(df_mussel$density),
+#                                 length = 100))
+
+## make a data frame for prediction
+df_pred <- df_mussel %>% 
+  reframe(density = seq(min(density),
+                        max(density),
+                        length = 100))
+
+## prediction
+y <- predict(m_binom,
+             newdata = df_pred) %>% 
+  boot::inv.logit()
+
+df_pred <- df_pred %>% 
+  mutate(y_pred = y)
+
+# ## manual conversion
+# my.inv.logit <- function(x) exp(x) / (1 + exp(x))
+# my_y <- predict(m_binom,
+#              newdata = df_pred) %>% 
+#   my.inv.logit()
+
+## draw prediction
+df_mussel %>% 
+  ggplot(aes(x = density,
+             y = p)) +
+  geom_point() +
+  labs(x = "Mussel density",
+       y = "Prop. of eggs fertilized") +
+  geom_line(data = df_pred,
+            aes(y = y_pred))
+
+# binomial distribution with variable number of trials --------------------
+
+## create fake data with variable number of trials
+df_mussel <- df_mussel %>% 
+  mutate(n_examined = rpois(nrow(.), lambda = 40))
+
+## this model code natually accounts for variation in n_examined
+m_binom <- glm(cbind(n_fertilized, n_examined - n_fertilized) ~ density,
+               data = df_mussel,
+               family = "binomial")
+
+
+
