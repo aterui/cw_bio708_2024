@@ -80,5 +80,3 @@ m_pois <- glm(count ~ nitrate,
               family = "poisson")
 
 logLik(m_pois)
-
-
