@@ -18,7 +18,7 @@ dpois(x = 3, lambda = 3.5)
 # if the data follows a Poisson dist. with mean 3.5
 3.5^3 * exp(-3.5) / factorial(3)
 
-# change lambda values, calculat probabilities
+# change lambda values, calculate probabilities
 lambda <- seq(0, 10, by = 0.1)
 pr <- dpois(x = 3, lambda = lambda)
 df_pr <- tibble(y = 3,
