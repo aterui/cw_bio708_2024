@@ -62,3 +62,19 @@ c(sm1$r.squared, sm2$r.squared)
 c(sm1$adj.r.squared, sm2$adj.r.squared)
 
 
+# likelihood ratio test ---------------------------------------------------
+
+## logLik(m2) > logLik(m1) despite x2 being irrelevant
+## this increase happens by random chance
+logLik(m1)
+logLik(m2)
+
+# test = "Chisq" specifies a chi-square distribution
+# as a distribution of LR
+anova(m1, m2, test = "Chisq")
+
+
+# AIC ---------------------------------------------------------------------
+
+AIC(m1)
+AIC(m2)
